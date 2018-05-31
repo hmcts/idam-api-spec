@@ -1534,10 +1534,8 @@ definitions:
         items:
           $ref: '#/definitions/RoleDetail'
       userGroup:
-        type: array
         description: The list of groups of the user
-        items:
-          $ref: '#/definitions/RoleDetail'
+        $ref: '#/definitions/RoleDetail'
     required: [email, forname, surname, password]
 
   PasswordReset:
