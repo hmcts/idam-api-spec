@@ -1501,6 +1501,14 @@ definitions:
         description: The description of the error
     required: [code]
 
+  RoleDetail:
+    type: object
+    properties:
+      code:
+        type: string
+        description: the role code
+    required: [code]
+
   TestUserRequest:
     type: object
     properties:
@@ -1524,7 +1532,12 @@ definitions:
         type: array
         description: The list of the roles of the user
         items:
-          type: string
+          $ref: '#/definitions/RoleDetail'
+      userGroup:
+        type: array
+        description: The list of groups of the user
+        items:
+          $ref: '#/definitions/RoleDetail'
     required: [email, forname, surname, password]
 
   PasswordReset:
