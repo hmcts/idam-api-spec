@@ -237,6 +237,9 @@ paths:
               description: "The location to redirect the user to. Set based on the redirect_uri parameter
               received in the request. Will include the authorization code as a query string parameter."
           description: "Authentication is successful."
+          schema:
+            type: string
+            description: "The OAuth2 code"
         400:
           description: "Request is invalid. One or more required parameters may have been omitted"
         401:
