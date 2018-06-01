@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'io.swagger:swagger-codegen:2.2.2'
+        classpath 'io.swagger:swagger-codegen:2.2.3'
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.5.RELEASE'
     }
 }
@@ -19,7 +19,7 @@ plugins {
 }
 
 
-version = '2.2.1'
+version = '2.2.2'
 group = 'uk.gov.hmcts.reform.idam'
 
 description = """idam-api-spec"""
@@ -47,7 +47,7 @@ configurations {
 
 dependencyManagement {
     imports {
-        mavenBom 'uk.gov.hmcts.reform.idam:idam-bom:1.1.0'
+        mavenBom 'uk.gov.hmcts.reform.idam:idam-bom:1.2.0'
     }
 }
 
@@ -69,6 +69,7 @@ task generateApi {
         config.setOutputDir("$buildDir")
         config.setLang('spring')
         config.setAdditionalProperties([
+                'generateApis'                 : 'false',
                 'interfaceOnly'                : 'true',
                 'apiPackage'                   : 'uk.gov.hmcts.reform.idam.api',
                 'modelPackage'                 : 'uk.gov.hmcts.reform.idam.api.model',
