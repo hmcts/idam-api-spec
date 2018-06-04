@@ -258,31 +258,37 @@ paths:
       produces:
         - application/json
       parameters:
-        - in: formData
-          name: username
-          description: The user's username
-          required: true
+        - in: header
+          name: Authorization
           type: string
-        - in: formData
-          name: password
-          description: The user's password
           required: true
-          type: string
+          description: "Uses Basic Authentication to identifying the principal making the request.
+          For example - `Basic dXNlcm5hbWU6cGFzc3dvcmQ=`"
         - in: formData
           name: redirect_uri
           description: "URI to redirect the user to after successful authentication. This URL
           must match one of the registered URLs for the OAuth2 application linked to the service
           initiating the authentication flow."
-          required: true
+          required: false
           type: string
         - in: formData
           name: client_id
           description: OAuth2 client id of the service initiating the OAuth2 flow.
-          required: true
+          required: false
           type: string
         - in: formData
           name: state
           description: Optional state to be sent back to the initiating service after successful authentication.
+          required: false
+          type: string
+        - in: formData
+          name: scope
+          description: Optional scopes to request.
+          required: false
+          type: string
+        - in: formData
+          name: response_type
+          description: Response type to use for this request
           required: false
           type: string
       responses:

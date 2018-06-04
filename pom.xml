@@ -5,7 +5,7 @@
 
     <groupId>uk.gov.hmcts.reform.idam</groupId>
     <artifactId>idam-api-spec</artifactId>
-    <version>2.2.3</version>
+    <version>2.2.4</version>
     <packaging>jar</packaging>
 
     <parent>
