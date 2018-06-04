@@ -98,11 +98,6 @@ classes.dependsOn generatedClasses
 compileJava.dependsOn compileGeneratedJava
 
 publishing {
-    repositories {
-        maven {
-            mavenLocal()
-        }
-    }
     publications {
         Main(MavenPublication) {
             from components.java
