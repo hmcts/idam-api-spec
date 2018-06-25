@@ -1438,6 +1438,9 @@ definitions:
         type: array
         items:
           type: string
+      selfRegistrationAllowed:
+        type: boolean
+        description: Self Registration Allowed
     required: [label, description, allowedRoles]
 
   OAuth2Agent:
