@@ -1405,6 +1405,9 @@ definitions:
       oauth2ClientId:
         type: string
         description: The Oauth2 Client Id
+      selfRegistrationAllowed:
+        type: boolean
+        description: Flag indicating whether Self-service registration is enabled for this service.
     required: [label, description, allowedRoles]
 
   ServiceUpdate:
