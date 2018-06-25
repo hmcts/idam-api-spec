@@ -904,7 +904,6 @@ paths:
         - in: header
           name: Authorization
           type: string
-          required: true
           description: The Base64-encoded authorization token
           example: AdminApiAuthToken [api-auth-token]
       responses:
