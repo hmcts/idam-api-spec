@@ -906,6 +906,10 @@ paths:
           type: string
           description: The Base64-encoded authorization token
           example: AdminApiAuthToken [api-auth-token]
+        - in: query
+          name: clientId
+          type: string
+          description: If supplied, filters the list of services which are associated to this clientId
       responses:
         200:
           description: "An array of the registered services in the system"
