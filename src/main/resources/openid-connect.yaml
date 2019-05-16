@@ -120,7 +120,7 @@ paths:
       tags:
         - OpenID Connect
     post:
-      summary: 'Browser OpenID Connect Authorize'
+      summary: 'Direct Post OpenID Connect Authorize'
       operationId: _oauth2_authorize_post
       description: Initiate an OpenID Connect Authorization flow
       consumes:
