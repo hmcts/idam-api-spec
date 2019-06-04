@@ -12,6 +12,36 @@ produces:
   - application/json
 basePath: /o
 paths:
+  /authenticate:
+    post:
+      summary: 'Authenticate Username and Password'
+      operationId: _authenticate
+      description: Returns a cookie reference to either a new or existing session
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: username
+          in: formData
+          description: The user's username
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: The user's password
+          required: true
+          type: string
+      responses:
+        200:
+          headers:
+            Set-Cookie:
+              type: string
+              description: |
+                A Set-Cookie instruction containing the cookie referencing the users
+                newly created or pre-existing session.
+          description: Authentication is successful.
+        401:
+          description: Username password combination not found
+
   /authorize:
     get:
       summary: 'Browser OpenID Connect Authorize'

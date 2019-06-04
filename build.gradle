@@ -18,7 +18,7 @@ plugins {
     id 'com.jfrog.bintray' version '1.8.0'
 }
 
-version = '2.10.3'
+version = '2.10.4'
 group = 'uk.gov.hmcts.reform.idam'
 
 description = """idam-api-spec"""
