@@ -57,6 +57,56 @@ paths:
         - auth:
               - manage-user
 
+  /_search/users:
+    get:
+      tags:
+        - User Management
+      summary: Search for Users matching the ElasticSearch query
+      operationId: searchUsers
+      produces:
+        - application/json
+      parameters:
+        - name: query
+          in: query
+          description: A query string in ElasticSearch Query DSL
+          required: true
+          type: string
+        - name: size
+          in: query
+          description: The number of items per page, default of 20
+          required: false
+          type: integer
+          format: int32
+        - name: page
+          in: query
+          description: The index of the page of items, starting at 0 for the first page
+          required: false
+          type: integer
+          format: int32
+      responses:
+        '200':
+          headers:
+            Link:
+              type: string
+              description: |
+                Reference uri for the first page, the next page and the last page
+            X-Total-Count:
+              type: integer
+              description: |
+                A count of the total items the search query has matched
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        400:
+          description: Required parameters are missing or invalid.
+        '401':
+          description: Missing or invalid bearer token
+        '403':
+          description: Bearer token is expired, or it doesn't have the 'create-user' scope.
+      deprecated: false
+
   /users/registration:
     post:
       tags:
