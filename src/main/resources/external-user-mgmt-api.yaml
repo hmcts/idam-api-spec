@@ -104,7 +104,7 @@ paths:
         '401':
           description: Missing or invalid bearer token
         '403':
-          description: Bearer token is expired, or it doesn't have the 'create-user' scope.
+          description: Bearer token is expired, or it doesn't have the 'search-user' scope.
       deprecated: false
 
   /users/registration:
