@@ -57,7 +57,7 @@ paths:
         - auth:
               - manage-user
 
-  /_search/users:
+  /users/search:
     get:
       tags:
         - User Management
