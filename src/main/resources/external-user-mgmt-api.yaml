@@ -21,46 +21,6 @@ paths:
     get:
       tags:
         - User Management
-      operationId: GetUserByEmail
-      summary: Search for a user matching the input email.
-      description: >-
-        Search for a user using a email as search criteria.
-      produces:
-        - application/json
-      parameters:
-        - in: header
-          name: authorization
-          description: The access token associated to the session.
-          required: true
-          type: string
-        - in: query
-          name: email
-          format: email
-          pattern: ^[^()!&/;%*@]+@[^()!&/;%*@]+\.[^()!&/;%*@]+$
-          type: string
-          required: true
-          description: "The email of the user to be searched."
-      responses:
-        200:
-          description: The details of the requested user
-          schema:
-            $ref: '#/definitions/User'
-        400:
-          description: Required parameters are missing or invalid.
-        401:
-          description: Missing bearer token.
-        403:
-          description: Bearer token is expired, or does not have 'manage-user' scope.
-        404:
-          description: The user does not exist.
-      security:
-        - auth:
-              - manage-user
-
-  /users/search:
-    get:
-      tags:
-        - User Management
       summary: Search for Users matching the ElasticSearch query
       operationId: searchUsers
       produces:
