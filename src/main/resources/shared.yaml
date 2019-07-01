@@ -71,6 +71,9 @@ definitions:
         type: array
         items:
           type: string
+      lastModified:
+        description: The date and time this user was last modified.
+        type: string
 
   ErrorMap:
     title: ErrorMap
