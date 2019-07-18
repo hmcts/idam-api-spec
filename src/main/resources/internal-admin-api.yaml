@@ -461,24 +461,24 @@ paths:
           description: "User created successfully"
 
   /validate:
-      post:
-        operationId: "validateActivationToken"
-        description: "Validate an activation token. The token is generated when the user is initially
+    post:
+      operationId: "validateActivationToken"
+      description: "Validate an activation token. The token is generated when the user is initially
         registered and is sent over email."
-        parameters:
-          - in: body
-            name: request
-            required: true
-            schema:
-              $ref: '#/definitions/ValidateRequest'
-        responses:
-          200:
-            description: 'The token is valid.'
-            schema:
-              $ref: '#/definitions/ActivationResult'
-              description: "validate activation token"
-          410:
-            description: 'The token is invalid (eg. expired).'
+      parameters:
+        - in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/ValidateRequest'
+      responses:
+        200:
+          description: 'The token is valid.'
+          schema:
+            $ref: '#/definitions/ActivationResult'
+            description: "validate activation token"
+        410:
+          description: 'The token is invalid (eg. expired).'
 
   /activate:
     patch:
@@ -1107,16 +1107,35 @@ paths:
       operationId: "createTestAccount"
       description: "Create a test account"
       parameters:
-        -  in: body
-           name: request
-           required: true
-           schema:
-             $ref: '#/definitions/TestUserRequest'
+        - in: body
+          name: request
+          required: true
+          schema:
+            $ref: '#/definitions/TestUserRequest'
       responses:
         201:
           description: "Account created"
         409:
           description: "The user already exists."
+
+  /testing-support/pact-state-change:
+    post:
+      operationId: "pactStateChange"
+      description: "Handles the requested state changes for pact testing"
+      parameters:
+      - name: pactState
+        in: body
+        required: true
+        schema:
+          $ref: '#/definitions/PactState'
+        description: "Pact will supply the declared state in this format"
+      responses:
+        200:
+          description: "State changed and response contains relevant data"
+          schema:
+            type: object
+        400:
+          description: "State parameter is malformed or unsupported"
 
   /testing-support/test-data:
     delete:
@@ -1193,10 +1212,10 @@ paths:
           schema:
             $ref: '#/definitions/PatchRequest'
       responses:
-          204:
-            description: "The service has been updated"
-          404:
-            description: "Could not find the service"
+        204:
+          description: "The service has been updated"
+        404:
+          description: "Could not find the service"
 
   /testing-support/roles/{role:.+}:
     delete:
@@ -1224,56 +1243,56 @@ paths:
 definitions:
 
   ValidateRequest:
-      type: object
-      properties:
-        token:
-          type: string
-          description: JWT token provided in the activation email
-        code:
-          type: string
-          description: Unique string provided inthe activation email
-      required: [token, code]
+    type: object
+    properties:
+      token:
+        type: string
+        description: JWT token provided in the activation email
+      code:
+        type: string
+        description: Unique string provided inthe activation email
+    required: [token, code]
 
   ValidateJWT:
-      type: object
-      properties:
-        valid:
-          type: boolean
-          description: Returns if the token is valid?
-        uid:
-          type: string
-          description: user id
-        realm:
-          type: string
-          description: realm
-      required: [isValid, uid]
+    type: object
+    properties:
+      valid:
+        type: boolean
+        description: Returns if the token is valid?
+      uid:
+        type: string
+        description: user id
+      realm:
+        type: string
+        description: realm
+    required: [isValid, uid]
 
   AccessTokenInfo:
-      type: object
-      properties:
-        sub:
+    type: object
+    properties:
+      sub:
+        type: string
+      scope:
+        type: array
+        items:
           type: string
-        scope:
-          type: array
-          items:
-            type: string
 
   IdTokenInfo:
-      type: object
-      properties:
-        sub:
+    type: object
+    properties:
+      sub:
+        type: string
+      name:
+        type: string
+      tokenType:
+        type: string
+      aud:
+        type: string
+      roles:
+        type: array
+        items:
           type: string
-        name:
-          type: string
-        tokenType:
-          type: string
-        aud:
-          type: string
-        roles:
-          type: array
-          items:
-            type: string
-            description: An array of role names
+          description: An array of role names
 
   ActivateRequest:
     type: object
@@ -1435,6 +1454,17 @@ definitions:
     items:
       $ref: '#/definitions/Service'
 
+  PactState:
+    type: object
+    properties:
+      state:
+        type: string
+        description: The user id
+      params:
+        type: object
+        additionalProperties:
+          type: object
+
   TestUserRequest:
     type: object
     properties:
@@ -1565,10 +1595,10 @@ definitions:
     type: object
     properties:
       keys:
-       description: "The value of the \"keys\" parameter is an array of JWK values."
-       type: array
-       items:
-         $ref: "#/definitions/JsonWebKey"
+        description: "The value of the \"keys\" parameter is an array of JWK values."
+        type: array
+        items:
+          $ref: "#/definitions/JsonWebKey"
 
   JsonWebKey:
     type: object
