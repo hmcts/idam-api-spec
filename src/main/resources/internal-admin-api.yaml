@@ -1459,7 +1459,7 @@ definitions:
     properties:
       state:
         type: string
-        description: The user id
+        description: The name of the pact state eg. "Given A pact state", where "A pact state is" the name
       params:
         type: object
         additionalProperties:
