@@ -1119,6 +1119,8 @@ paths:
             $ref: '#/definitions/Account'
         404:
           description: "The account doesn't exist."
+
+  /testing-support/accounts:
     post:
       operationId: "createTestAccount"
       description: "Create a test account"
