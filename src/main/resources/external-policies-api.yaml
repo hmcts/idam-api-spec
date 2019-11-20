@@ -22,13 +22,6 @@ paths:
       operationId: evaluate
       description: Evaluate policies
       parameters:
-        - in: header
-          name: authorization
-          description: >-
-            The access token granted to the client application after user authentication. The role is assigned to
-            the user the client application is acting on behalf of.
-          required: true
-          type: string
         - in: body
           name: request
           required: true
