@@ -74,6 +74,12 @@ definitions:
         type: array
         items:
           type: string
+      ssoProvider:
+          description: The name of the SSO Provider the account was federated from.
+          type: string
+      ssoId:
+          description: The ID of the account within the SSO Provider the account was federated from.
+          type: string
       lastModified:
         description: The date and time this user was last modified.
         type: string

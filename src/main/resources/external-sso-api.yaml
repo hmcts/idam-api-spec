@@ -1,0 +1,137 @@
+swagger: '2.0'
+info:
+    version: 2.2.0
+    title: SSO Federation Services
+    description: |
+        Allows for automated single sign on services with trusted providers.
+basePath: /api/v1
+tags:
+    -   name: SSO Federation Api
+securityDefinitions:
+    auth:
+        type: oauth2
+        flow: accessCode
+        authorizationUrl: http://authserver/login
+        tokenUrl: http://authserver/oauth2/token
+        scopes:
+            openid: required for obtaining information about the user
+            roles: required for allocation of appropriate permissions
+            profile: required for obtaining information about the user
+
+paths:
+    /federatedusers/me:
+        get:
+            tags:
+                - SSO Federation Api
+            summary: Obtain federated user account infomation for the owner of the supplied access_token.
+            operationId: getFederatedUser
+            produces:
+                - application/json
+            parameters:
+                - in: header
+                  name: authorization
+                  description: An access_token obtained from an external SSO Provider.
+                  required: true
+                  type: string
+            responses:
+                '200':
+                    description: The details of the requested user.
+                    schema:
+                        $ref: '#/definitions/User'
+                '401':
+                    description: The supplied authorization is invalid or has expired.
+            deprecated: false
+        put:
+            tags:
+                - SSO Federation Api
+            summary: Update a users federated account.
+            description: |
+                Update the users federated account with the latest details from the SSO Service Provider
+                where the access_token was obtained.
+            operationId: updateFederatedUser
+            produces:
+                - application/json
+            parameters:
+                -   in: header
+                    name: authorization
+                    description: The access token associated to the session.
+                    required: true
+                    type: string
+            responses:
+                '200':
+                    description: The details of the created requested user.
+                    schema:
+                        $ref: '#/definitions/User'
+                '401':
+                    description: The supplied authorization is invalid or has expired.
+                '404':
+                    description: The user does not yet have a federated account.
+            deprecated: false
+
+    /federatedusers:
+        post:
+            tags:
+                - SSO Federation Api
+            summary: Create a new federated account.
+            description: |
+                Create a federated account with the latest details of the user from the
+                SSO Service Provider where the access_token was obtained. References to the
+                SSO provider and the users ID from the provider will be retained, and permissions
+                will be granted if appropriate.
+            operationId: createFederatedUser
+            produces:
+                - application/json
+            parameters:
+                -   in: header
+                    name: authorization
+                    description: The access token associated to the session.
+                    required: true
+                    type: string
+            responses:
+                '200':
+                    description: The details of the created requested user.
+                    schema:
+                        $ref: '#/definitions/User'
+                '401':
+                    description: The supplied authorization is invalid or has expired.
+                '404':
+                    description: The user does not yet have a federated account.
+
+    /federatedusers/authenticate:
+        post:
+            tags:
+                - SSO Federation Api
+            operationId: federationAuthenticate
+            summary: Authenticate federated user.
+            description: >-
+                Attempt to match the authenticated user with a federated account and create
+                a new session within the IDAM system.
+            produces:
+                - application/json
+            parameters:
+                -   in: header
+                    name: authorization
+                    description: The access token associated to the session.
+                    required: true
+                    type: string
+            responses:
+                200:
+                    headers:
+                        Set-Cookie:
+                            type: string
+                            description: |
+                                A Set-Cookie instruction containing the cookie referencing the users
+                                newly created or pre-existing session, or AuthId cookie to continue the flow with OTP.
+                    description: Authentication is successful, or waiting for another call with OTP.
+                401:
+                    description: A Federated user matching the access_token was not found.
+
+definitions:
+    SSOProviderInformation:
+        type: object
+        properties:
+            ssoProvider:
+                type: string
+                minLength: 1
+                description: "A predefined reference to the target SSO Provider"
+        required: [ssoProvider]
