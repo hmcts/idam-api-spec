@@ -6,7 +6,7 @@ info:
         Allows for automated single sign on services with trusted providers.
 basePath: /api/v1
 tags:
-    -   name: SSO Federation Api
+    -   name: SSO Federation
 securityDefinitions:
     auth:
         type: oauth2
@@ -22,7 +22,7 @@ paths:
     /federatedusers/me:
         get:
             tags:
-                - SSO Federation Api
+                - SSO Federation
             summary: Obtain federated user account infomation for the owner of the supplied access_token.
             operationId: getFederatedUser
             produces:
@@ -43,7 +43,7 @@ paths:
             deprecated: false
         put:
             tags:
-                - SSO Federation Api
+                - SSO Federation
             summary: Update a users federated account.
             description: |
                 Update the users federated account with the latest details from the SSO Service Provider
@@ -71,7 +71,7 @@ paths:
     /federatedusers:
         post:
             tags:
-                - SSO Federation Api
+                - SSO Federation
             summary: Create a new federated account.
             description: |
                 Create a federated account with the latest details of the user from the
@@ -100,7 +100,7 @@ paths:
     /federatedusers/authenticate:
         post:
             tags:
-                - SSO Federation Api
+                - SSO Federation
             operationId: federationAuthenticate
             summary: Authenticate federated user.
             description: >-
