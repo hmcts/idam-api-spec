@@ -1464,6 +1464,11 @@ definitions:
       selfRegistrationAllowed:
         type: boolean
         description: Flag indicating whether Self-service registration is enabled for this service.
+      ssoProviders:
+        type: array
+        items:
+          type: string
+        description: A list of external SSO Providers to federate identities with for this service
     required: [label, description, allowedRoles]
 
   ServiceUpdate:
@@ -1504,6 +1509,11 @@ definitions:
       selfRegistrationAllowed:
         type: boolean
         description: Flag indicating whether Self-service registration is enabled for this service. If omitted, defaults to false.
+      ssoProviders:
+          type: array
+          items:
+              type: string
+          description: A list of external SSO Providers to federate identities with for this service
     required: [label, description, allowedRoles]
 
   OAuth2Agent:
