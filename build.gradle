@@ -109,6 +109,10 @@ task generateApi {
         ])
 
         generateCodeFromSwagger('src/main/resources/external-policies-api.yaml', 'external', null)
+
+        generateCodeFromSwagger('src/main/resources/external-bulk-request-api.yaml', 'external', [
+                'User': 'uk.gov.hmcts.reform.idam.api.shared.model.User'
+        ])
     }
 }
 

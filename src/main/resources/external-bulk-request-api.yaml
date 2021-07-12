@@ -1,0 +1,53 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: User Management API v1.0
+  description: >-
+basePath: /api/v1
+tags:
+  - name: Bulk User Management
+securityDefinitions:
+  auth:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: http://authserver/login
+    tokenUrl: http://authserver/oauth2/token
+    scopes:
+      manage-user: allows modifying a User resource
+
+paths:
+  /users/registration/bulk:
+    post:
+      tags:
+        - Bulk User Management
+      operationId: bulkUserRegistration
+      description: Issue a bulk user registration request.
+      parameters:
+        - in: header
+          name: authorization
+          description: The access token associated to the session.
+          required: true
+          type: string
+        - in: body
+          name: request
+          required: true
+          description: the body of the User JSON object.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+      responses:
+        202:
+          description: Request accepted.
+          headers:
+            Location:
+              type: string
+              description: |
+                A Location header showing the URI where information pertaining to the current status
+                of the scheduled bulk operation can be queried. eg. Location: /api/v1/bulkRequest/{{id}}
+        401:
+          description: Missing bearer token.
+        403:
+          description: Bearer token is expired, or it doesn't have the 'create-user' scope.
+        400:
+          description: Required parameters are missing or invalid.
