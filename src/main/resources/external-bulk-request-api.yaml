@@ -16,12 +16,12 @@ securityDefinitions:
       manage-user: allows modifying a User resource
 
 paths:
-  /users/registration/bulk:
+  /users/registration/batch:
     post:
       tags:
         - Bulk User Management
-      operationId: bulkUserRegistration
-      description: Issue a bulk user registration request.
+      operationId: batchUserRegistration
+      description: Issue a bulk user registration batch request.
       parameters:
         - in: header
           name: authorization
@@ -44,7 +44,7 @@ paths:
               type: string
               description: |
                 A Location header showing the URI where information pertaining to the current status
-                of the scheduled bulk operation can be queried. eg. Location: /api/v1/bulkRequest/{{id}}
+                of the scheduled batch operation can be queried. eg. Location: /api/v1/batch/{{id}}
         401:
           description: Missing bearer token.
         403:
