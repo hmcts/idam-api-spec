@@ -12,8 +12,6 @@ securityDefinitions:
     flow: accessCode
     authorizationUrl: http://authserver/login
     tokenUrl: http://authserver/oauth2/token
-    scopes:
-      manage-user: allows modifying a User resource
 
 paths:
   /api/v1/batch/{batchId}:

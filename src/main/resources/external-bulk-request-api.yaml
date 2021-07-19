@@ -13,7 +13,7 @@ securityDefinitions:
     authorizationUrl: http://authserver/login
     tokenUrl: http://authserver/oauth2/token
     scopes:
-      manage-user: allows modifying a User resource
+      create-user: allows modifying a User resource
 
 paths:
   /users/registration/batch:
