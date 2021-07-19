@@ -1,0 +1,90 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Batch Status API v1.0
+  description: >-
+basePath: /api/v1
+tags:
+  - name: Batch Status
+securityDefinitions:
+  auth:
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: http://authserver/login
+    tokenUrl: http://authserver/oauth2/token
+    scopes:
+      manage-user: allows modifying a User resource
+
+paths:
+  /api/v1/batch/{batchId}:
+    get:
+      tags:
+        - Batch Status
+      operationId: batchStatus
+      description: Get the latest state of an accepted batch request.
+      parameters:
+        - in: header
+          name: authorization
+          description: The access token associated to the session.
+          required: true
+          type: string
+        - in: path
+          name: batchId
+          type: string
+          required: true
+          description: The id of the batch process.
+      responses:
+        200:
+          description: Request accepted.
+          schema:
+            $ref: '#/definitions/BatchStatusResponse'
+        401:
+          description: Missing bearer token.
+        403:
+          description: Bearer token is expired, or it doesn't have the required scopes.
+        400:
+          description: Required parameters are missing or invalid.
+
+definitions:
+  BatchStatusResponse:
+    type: object
+    properties:
+      createdAt:
+        type: string
+        description: "A timestamp of the created datetime of the batch process"
+      status:
+        type: string
+        enum: [ACCEPTED, IN_PROGRESS, COMPLETE, CANCELLED]
+      totalRequests:
+        type: integer
+        description: "Total number of requested operations"
+      success:
+        type: integer
+        description: "Total number of requested operations"
+      failied:
+        type: integer
+        description: "Total number of requested operations"
+      response:
+        type: array
+        items:
+          $ref: '#/definitions/BatchRequestResponseItem'
+        description: "The names of the roles to be assigned to the user"
+    required: [email, firstname, lastname]
+
+  BatchRequestResponseItem:
+    type: object
+    properties:
+      statusCode:
+        type: integer
+        description: "The status code response for the processed request."
+      status:
+        type: string
+        description: "The status response message of the processed request."
+      path:
+        type: string
+        description: "A location where the processed item may be retrieved."
+      errorMessages:
+        type: array
+        description: "An array of reasons as to why the request failed"
+        items:
+          type: string

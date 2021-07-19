@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   version: 1.0.0
-  title: User Management API v1.0
+  title: Bulk User Management API v1.0
   description: >-
 basePath: /api/v1
 tags:
@@ -35,7 +35,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/User'
+              $ref: '#/definitions/BulkRegistrationRequest'
       responses:
         202:
           description: Request accepted.
@@ -51,3 +51,31 @@ paths:
           description: Bearer token is expired, or it doesn't have the 'create-user' scope.
         400:
           description: Required parameters are missing or invalid.
+
+definitions:
+  BulkRegistrationRequest:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: "user unique ID (UID)"
+      email:
+        type: string
+        format: email
+        pattern: ^[^()!&/;%*@]+@[^()!&/;%*@]+\.[^()!&/;%*@]+$
+        description: "email used for registration"
+      firstName:
+        type: string
+        minLength: 1
+        description: "first name"
+      lastName:
+        type: string
+        minLength: 1
+        description: "last name"
+      roles:
+        type: array
+        items:
+          type: string
+        description: "The names of the roles to be assigned to the user"
+    required: [email, firstname, lastname]
