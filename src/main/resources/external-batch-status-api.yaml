@@ -60,10 +60,10 @@ definitions:
         description: "Total number of requested operations"
       success:
         type: integer
-        description: "Total number of requested operations"
-      failied:
+        description: "Total number of successful requested operations processed"
+      failed:
         type: integer
-        description: "Total number of requested operations"
+        description: "Total number of failed requested operations processed"
       response:
         type: array
         items:
