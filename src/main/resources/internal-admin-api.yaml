@@ -1303,6 +1303,24 @@ paths:
         200:
           description: "Job started"
 
+  /testing-support/mock/refdata/external/v1/organisations/mfa:
+    get:
+      operationId: "getOrganisationMFA"
+      description: "Gets the organisation mfa by userId"
+      parameters:
+        - in: query
+          name: userId
+          type: string
+          required: true
+      responses:
+        200:
+          description: "The organisation mfa info has been found"
+          schema:
+            $ref: '#/definitions/OrganisationMFAResult'
+            description: "Organisation mfa type"
+        404:
+          description: "User Not Found"
+
 definitions:
   Account:
     title: Account
@@ -1860,3 +1878,11 @@ definitions:
         items:
           type: string
         description: Test service names that failed to delete
+
+  OrganisationMFAResult:
+    type: object
+    properties:
+      mfa:
+        type: string
+        description: Organisation MFA type
+        
