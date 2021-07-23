@@ -14,6 +14,56 @@ securityDefinitions:
     tokenUrl: http://authserver/oauth2/token
 
 paths:
+  /api/v1/batch:
+    get:
+      tags:
+        - Batch Status
+      operationId: getBatches
+      description: Fetch all batches with some optional filters
+      parameters:
+        - in: header
+          name: authorization
+          description: >-
+            The access token associated to the session.
+            IDAM_SYSTEM_OWNER role is required.
+          required: true
+          type: string
+        - in: query
+          name: status
+          required: false
+          description: Optional parameter allowing filtering by batch status.
+          type: string
+        - in: query
+          name: clientId
+          required: false
+          description: Optional parameter allowing filtering by clientId.
+          type: string
+        - name: size
+          in: query
+          description: The number of items per page, default of 20
+          required: false
+          type: integer
+          format: int32
+        - name: page
+          in: query
+          description: The index of the page of items, starting at 0 for the first page
+          required: false
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: Request accepted.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/BatchResponse'
+        401:
+          description: Missing bearer token.
+        403:
+          description: Bearer token is expired, or it doesn't have the required scopes.
+        400:
+          description: Parameters are invalid.
+
   /api/v1/batch/{batchId}:
     get:
       tags:
@@ -40,10 +90,65 @@ paths:
           description: Missing bearer token.
         403:
           description: Bearer token is expired, or it doesn't have the required scopes.
+        404:
+          description: Batch not found.
+        400:
+          description: Required parameters are missing or invalid.
+
+    delete:
+      tags:
+        - Batch Status
+      operationId: cancelBatch
+      description: Cancel a batch operation.
+      parameters:
+        - in: header
+          name: authorization
+          description: The access token associated to the session.
+          required: true
+          type: string
+        - in: path
+          name: batchId
+          type: string
+          required: true
+          description: The id of the batch process.
+      responses:
+        204:
+          description: Success.
+        401:
+          description: Missing bearer token.
+        403:
+          description: Bearer token is expired, or it doesn't have the required scopes.
+        404:
+          description: Batch not found.
         400:
           description: Required parameters are missing or invalid.
 
 definitions:
+  BatchResponse:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Batch Unique ID
+      state:
+        type: string
+        enum: [ ACCEPTED, IN_PROGRESS, COMPLETE, CANCELLED ]
+      creationDate:
+        type: string
+        description: DateTime this was created.
+      lastModifiedDate:
+        type: string
+        description: DateTime this was last updated created.
+      requestClientId:
+        type: string
+        description: Client ID in the access_token used for the request.
+      requestUserId:
+        type: string
+        description: User ID of the requestor.
+      processorId:
+        type: string
+        description: ID of the batch processor that has picked up the batch for processing.
+
   BatchStatusResponse:
     type: object
     properties:
@@ -67,7 +172,6 @@ definitions:
         items:
           $ref: '#/definitions/BatchRequestResponseItem'
         description: "The names of the roles to be assigned to the user"
-    required: [email, firstname, lastname]
 
   BatchRequestResponseItem:
     type: object
