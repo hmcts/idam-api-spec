@@ -6,7 +6,6 @@ info:
 basePath: /api/v1
 tags:
   - name: Bulk User Management
-  - name: Bulk Role Management
 securityDefinitions:
   auth:
     type: oauth2
@@ -56,7 +55,7 @@ paths:
   /users/roles/batch:
     post:
       tags:
-        - Bulk Role Management
+        - Bulk User Management
       operationId: batchRoleManagement
       description: Issue a bulk user role update batch request.
       parameters:
