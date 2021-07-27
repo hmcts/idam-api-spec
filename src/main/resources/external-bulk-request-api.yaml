@@ -6,6 +6,7 @@ info:
 basePath: /api/v1
 tags:
   - name: Bulk User Management
+  - name: Bulk Role Management
 securityDefinitions:
   auth:
     type: oauth2
@@ -52,7 +53,62 @@ paths:
         400:
           description: Required parameters are missing or invalid.
 
+  /users/roles/batch:
+    post:
+      tags:
+        - Bulk Role Management
+      operationId: batchRoleManagement
+      description: Issue a bulk user role update batch request.
+      parameters:
+        - in: header
+          name: authorization
+          description: The access token associated to the session.
+          required: true
+          type: string
+        - in: body
+          name: request
+          required: true
+          description: the body of the User JSON object.
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/BulkRolesRequest'
+      responses:
+        202:
+          description: Request accepted.
+          headers:
+            Location:
+              type: string
+              description: |
+                A Location header showing the URI where information pertaining to the current status
+                of the scheduled batch operation can be queried. eg. Location: /api/v1/batch/{{id}}
+        401:
+          description: Missing bearer token.
+        403:
+          description: Bearer token is expired, or it doesn't have the 'create-user' scope.
+        400:
+          description: Required parameters are missing or invalid.
+
 definitions:
+  BulkRolesRequest:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: "user unique ID (UID)"
+      operation:
+        type: string
+        enum: [ADD, REMOVE, REPLACE]
+        description: "The operation type for this update"
+      roles:
+        type: array
+        items:
+          type: string
+        description: "The names of the roles to be modified for the user"
+    required: [id, operation, roles]
+
+
   BulkRegistrationRequest:
     type: object
     properties:
