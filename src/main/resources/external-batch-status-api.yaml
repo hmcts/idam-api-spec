@@ -115,7 +115,7 @@ paths:
         200:
           description: Request accepted.
           schema:
-            $ref: '#/definitions/BatchStatusResponse'
+            $ref: '#/definitions/BatchResponse'
         401:
           description: Missing bearer token.
         403:
