@@ -95,6 +95,36 @@ paths:
         400:
           description: Required parameters are missing or invalid.
 
+    post:
+      tags:
+        - Batch Status
+      operationId: runBatch
+      description: Executes the target batch job.
+      parameters:
+        - in: header
+          name: authorization
+          description: The access token associated to the session.
+          required: true
+          type: string
+        - in: path
+          name: batchId
+          type: string
+          required: true
+          description: The id of the batch process.
+      responses:
+        200:
+          description: Request accepted.
+          schema:
+            $ref: '#/definitions/BatchStatusResponse'
+        401:
+          description: Missing bearer token.
+        403:
+          description: Bearer token is expired, or it doesn't have the required scopes.
+        404:
+          description: Batch not found.
+        400:
+          description: Required parameters are missing or invalid.
+
     delete:
       tags:
         - Batch Status
