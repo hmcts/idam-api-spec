@@ -1753,6 +1753,9 @@ definitions:
           - "POLICIES_FAIL"
           - "INVALID_SESSION"
           - "ERROR"
+      info:
+        type: string
+        description: "Extra information about the error"
 
   JsonWebKeySet:
     type: object
