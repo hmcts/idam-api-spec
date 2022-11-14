@@ -18,7 +18,7 @@ plugins {
 
 apply plugin: 'org.openapi.generator'
 
-version = '4.0.0-BETA-1'
+version = '4.0.0-BETA-2'
 
 group = 'uk.gov.hmcts.reform.idam'
 
@@ -69,7 +69,8 @@ def generateCodeFromSwagger(swaggerSourceFile, packageName, importMappings) {
             'sourceFolder'                 : project.generatedApiTargetFolder,
             'dateLibrary'                  : 'java8',
             'useTags'                      : (packageName == 'external' ? 'true' : 'false'),
-            'generateModelDocumentation'   : 'false'
+            'generateModelDocumentation'   : 'false',
+            'booleanGetterPrefix'           : 'is'
     ])
     if (importMappings != null) {
         ((LinkedHashMap<String, String>) importMappings).forEach { k, v -> config.addImportMapping(k, v) }
