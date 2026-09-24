@@ -1,156 +1,98 @@
-import io.swagger.codegen.DefaultGenerator
-import io.swagger.codegen.config.CodegenConfigurator
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'io.swagger:swagger-codegen:2.4.2'
-    }
-}
-
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
 }
 
-version = '4.1.0'
-
 group = 'com.github.hmcts'
+version = providers.environmentVariable('RELEASE_VERSION').orElse('5.0.0-SNAPSHOT').get()
+description = 'Swagger specifications and generated Java contracts for the HMCTS IdAM APIs'
 
-description = """idam-api-spec"""
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+}
 
-sourceCompatibility = 17
-targetCompatibility = 17
-
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
 }
 
 repositories {
     mavenCentral()
-    maven { url = 'https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1' }
-    jcenter()
 }
-
-//configurations {
-//    generatedCompile
-//    compile.extendsFrom generatedCompile
-//}
 
 dependencies {
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '3.1.1'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-tomcat', version: '3.1.1'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.1.1'
-    implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
-    implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.2'
-//    generatedCompile group: 'jakarta.validation', name: 'validation-api', version: '2.0.1.Final'
+    // These APIs are referenced by the generated public contracts and models.
+    api 'org.springframework:spring-web:7.0.9'
+    api 'org.springframework:spring-context:7.0.9'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.22.0'
+    api 'io.swagger:swagger-annotations:1.6.16'
+    api 'jakarta.servlet:jakarta.servlet-api:6.1.0'
+    api 'jakarta.validation:jakarta.validation-api:3.1.1'
+    api 'org.slf4j:slf4j-api:2.0.18'
+
+    // @Generated is source metadata and is not needed by consumers at runtime.
+    compileOnly 'jakarta.annotation:jakarta.annotation-api:3.0.0'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.0.3'
 }
-//
-//project.ext {
-//    swaggerTargetFolder = 'src/generated/java'
-//}
-//
-//def generateCodeFromSwagger(swaggerSourceFile, packageName, importMappings) {
-//    def config = new CodegenConfigurator()
-//    config.setInputSpec("file:///$projectDir/$swaggerSourceFile")
-//    config.setOutputDir("$buildDir")
-//    config.setLang('spring')
-//    config.setAdditionalProperties([
-//            'generateApis'                 : 'false',
-//            'interfaceOnly'                : 'true',
-//            'apiPackage'                   : 'uk.gov.hmcts.reform.idam.api.' + packageName,
-//            'modelPackage'                 : 'uk.gov.hmcts.reform.idam.api.' + packageName +'.model',
-//            'sourceFolder'                 : project.swaggerTargetFolder,
-//            'dateLibrary'                  : 'java8',
-//            'useTags'                      : (packageName == 'external' ? 'true' : 'false'),
-//            'generateModelDocumentation'   : 'false'
-//    ])
-//    if (importMappings != null) {
-//        ((LinkedHashMap<String, String>) importMappings).each { k, v -> config.addImportMapping(k, v) }
-//    }
-//    new DefaultGenerator().opts(config.toClientOptInput()).generate()
-//}
-//
-//task generateApi {
-//    outputs.dir("$buildDir")
-//    doLast{
-//        generateCodeFromSwagger('src/main/resources/openid-connect.yaml', 'external', null)
-//
-//        generateCodeFromSwagger('src/main/resources/shared.yaml', 'shared', null)
-//
-//        generateCodeFromSwagger('src/main/resources/internal-admin-api.yaml', 'internal', [
-//                'User': 'uk.gov.hmcts.reform.idam.api.shared.model.User',
-//                'ErrorMap' : 'uk.gov.hmcts.reform.idam.api.shared.model.ErrorMap',
-//                'ArrayOfRoles' : 'uk.gov.hmcts.reform.idam.api.shared.model.ArrayOfRoles',
-//                'Role' : 'uk.gov.hmcts.reform.idam.api.shared.model.Role',
-//                'ArrayOfStrings' : 'uk.gov.hmcts.reform.idam.api.shared.model.ArrayOfStrings',
-//                'RoleDetail' : 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDetail',
-//                'UpdateRole' : 'uk.gov.hmcts.reform.idam.api.shared.model.UpdateRole',
-//                'PatchRequest' : 'uk.gov.hmcts.reform.idam.api.shared.model.PatchRequest',
-//                'PatchOperation' : 'uk.gov.hmcts.reform.idam.api.shared.model.PatchOperation',
-//                'RegisterRequest' : 'uk.gov.hmcts.reform.idam.api.shared.model.RegisterRequest',
-//                'SelfRegisterRequest' : 'uk.gov.hmcts.reform.idam.api.shared.model.SelfRegisterRequest'
-//        ])
-//
-//        generateCodeFromSwagger('src/main/resources/external-user-mgmt-api.yaml', 'external', [
-//                'RoleDefinition': 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDefinition',
-//                'User': 'uk.gov.hmcts.reform.idam.api.shared.model.User',
-//                'ErrorMap' : 'uk.gov.hmcts.reform.idam.api.shared.model.ErrorMap'
-//        ])
-//
-//        generateCodeFromSwagger('src/main/resources/external-sso-api.yaml', 'external', [
-//            'User': 'uk.gov.hmcts.reform.idam.api.shared.model.User'
-//        ])
-//
-//        generateCodeFromSwagger('src/main/resources/external-dynamic-role-assign-api.yaml', 'external', [
-//                'RoleDefinition': 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDefinition'
-//        ])
-//
-//        generateCodeFromSwagger('src/main/resources/external-policies-api.yaml', 'external', null)
-//
-//        generateCodeFromSwagger('src/main/resources/external-bulk-request-api.yaml', 'external', null)
-//
-//        generateCodeFromSwagger('src/main/resources/external-batch-status-api.yaml', 'external', null)
-//
-//    }
-//}
-//
-//sourceSets {
-//    generated {
-//        java {
-//            srcDirs "$buildDir/$swaggerTargetFolder"
-//        }
-//    }
-//}
-//
-//jar {
-//    from sourceSets.generated.output
-//}
-//
-//compileGeneratedJava.dependsOn generateApi
-//classes.dependsOn generatedClasses
-//compileJava.dependsOn compileGeneratedJava
+
+test {
+    useJUnitPlatform()
+}
 
 publishing {
     publications {
-        Main(MavenPublication) {
+        main(MavenPublication) {
             from components.java
-            groupId project.group
-            artifactId rootProject.name
-            version project.version
+            groupId = project.group
+            artifactId = rootProject.name
+            version = project.version
         }
     }
     repositories {
         maven {
-            name = "AzureArtifacts"
-            url = uri("https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1")
+            name = 'AzureArtifacts'
+            url = uri('https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1')
             credentials {
-                username = System.getenv("AZURE_DEVOPS_ARTIFACT_USERNAME")
-                password = System.getenv("AZURE_DEVOPS_ARTIFACT_TOKEN")
+                username = System.getenv('AZURE_DEVOPS_ARTIFACT_USERNAME')
+                password = System.getenv('AZURE_DEVOPS_ARTIFACT_TOKEN')
             }
         }
     }
 }
+
+tasks.register('verifyPublishedDependencies') {
+    group = 'verification'
+    description = 'Checks that the published POM exposes only the intended dependencies.'
+    dependsOn tasks.named('generatePomFileForMainPublication')
+
+    doLast {
+        def pom = layout.buildDirectory.file('publications/main/pom-default.xml').get().asFile.text
+        def dependencyPattern = ~/(?s)<dependency>\s*<groupId>([^<]+)<\/groupId>\s*<artifactId>([^<]+)<\/artifactId>.*?<\/dependency>/
+        def actual = (pom =~ dependencyPattern).collect { match -> "${match[1]}:${match[2]}" } as Set
+        def expected = [
+            'org.springframework:spring-web',
+            'org.springframework:spring-context',
+            'com.fasterxml.jackson.core:jackson-databind',
+            'io.swagger:swagger-annotations',
+            'jakarta.servlet:jakarta.servlet-api',
+            'jakarta.validation:jakarta.validation-api',
+            'org.slf4j:slf4j-api'
+        ] as Set
+
+        if (actual != expected) {
+            throw new GradleException("Published dependencies differ from the allowlist. Expected ${expected}, found ${actual}")
+        }
+    }
+}
+
+check.dependsOn tasks.named('verifyPublishedDependencies')
