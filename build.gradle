@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'org.openapi.generator' version '7.25.0'
 }
 
 group = 'com.github.hmcts'
@@ -28,21 +29,139 @@ repositories {
     mavenCentral()
 }
 
+def commonGeneratorOptions = [
+    interfaceOnly                     : 'true',
+    useSpringBoot4                    : 'true',
+    useJackson3                       : 'false',
+    useSpringBuiltInValidation        : 'true',
+    annotationLibrary                 : 'none',
+    documentationProvider             : 'none',
+    skipDefaultInterface              : 'true',
+    sortParamsByRequiredFlag          : 'false',
+    openApiNullable                   : 'false',
+    hideGenerationTimestamp           : 'true',
+    generateJsonIncludeAnnotations    : 'false',
+    generateJsonSetterNullsAnnotations: 'false',
+    generateModelDocumentation        : 'false',
+    containerDefaultToNull              : 'true',
+    defaultToEmptyContainer             : 'array',
+    generatedConstructorWithRequiredArgs: 'false',
+    booleanGetterPrefix                 : 'is',
+    dateLibrary                         : 'java8'
+]
+
+def apiSpecifications = [
+    [name: 'OpenIdConnect', file: 'openid-connect.yaml', packageName: 'external'],
+    [name: 'Shared', file: 'shared.yaml', packageName: 'shared'],
+    [
+        name          : 'InternalAdmin',
+        file          : 'internal-admin-api.yaml',
+        packageName   : 'internal',
+        importMappings: [
+            User               : 'uk.gov.hmcts.reform.idam.api.shared.model.User',
+            ErrorMap           : 'uk.gov.hmcts.reform.idam.api.shared.model.ErrorMap',
+            ArrayOfRoles       : 'uk.gov.hmcts.reform.idam.api.shared.model.ArrayOfRoles',
+            Role               : 'uk.gov.hmcts.reform.idam.api.shared.model.Role',
+            ArrayOfStrings     : 'uk.gov.hmcts.reform.idam.api.shared.model.ArrayOfStrings',
+            RoleDetail         : 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDetail',
+            UpdateRole         : 'uk.gov.hmcts.reform.idam.api.shared.model.UpdateRole',
+            PatchRequest       : 'uk.gov.hmcts.reform.idam.api.shared.model.PatchRequest',
+            PatchOperation     : 'uk.gov.hmcts.reform.idam.api.shared.model.PatchOperation',
+            RegisterRequest    : 'uk.gov.hmcts.reform.idam.api.shared.model.RegisterRequest',
+            SelfRegisterRequest: 'uk.gov.hmcts.reform.idam.api.shared.model.SelfRegisterRequest'
+        ]
+    ],
+    [
+        name          : 'ExternalUserManagement',
+        file          : 'external-user-mgmt-api.yaml',
+        packageName   : 'external',
+        importMappings: [
+            RoleDefinition: 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDefinition',
+            User          : 'uk.gov.hmcts.reform.idam.api.shared.model.User',
+            ErrorMap      : 'uk.gov.hmcts.reform.idam.api.shared.model.ErrorMap'
+        ]
+    ],
+    [
+        name          : 'ExternalSso',
+        file          : 'external-sso-api.yaml',
+        packageName   : 'external',
+        importMappings: [User: 'uk.gov.hmcts.reform.idam.api.shared.model.User']
+    ],
+    [
+        name          : 'ExternalDynamicRoleAssignment',
+        file          : 'external-dynamic-role-assign-api.yaml',
+        packageName   : 'external',
+        importMappings: [RoleDefinition: 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDefinition']
+    ],
+    [
+        name          : 'ExternalPolicies',
+        file          : 'external-policies-api.yaml',
+        packageName   : 'external',
+        importMappings: [
+            ActionMap   : 'uk.gov.hmcts.reform.idam.api.external.model.ActionMap',
+            ConditionMap: 'uk.gov.hmcts.reform.idam.api.external.model.ConditionMap',
+            SubjectMap  : 'uk.gov.hmcts.reform.idam.api.external.model.SubjectMap'
+        ]
+    ],
+    [name: 'ExternalBulkRequest', file: 'external-bulk-request-api.yaml', packageName: 'external'],
+    [name: 'ExternalBatchStatus', file: 'external-batch-status-api.yaml', packageName: 'external']
+]
+
+def generationTasks = apiSpecifications.collect { specification ->
+    def outputDirectory = layout.buildDirectory.dir("generated/openapi/${specification.name}")
+
+    sourceSets.main.java.srcDir(outputDirectory.map { it.dir('src/main/java') })
+
+    tasks.register(
+        "generate${specification.name}Api",
+        org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+    ) {
+        generatorName.set('spring')
+        inputSpec.set(layout.projectDirectory.file("src/main/resources/${specification.file}").asFile.absolutePath)
+        outputDir.set(outputDirectory)
+        templateDir.set(layout.projectDirectory.dir('src/main/openapi-templates').asFile.absolutePath)
+        apiPackage.set("uk.gov.hmcts.reform.idam.api.${specification.packageName}")
+        modelPackage.set("uk.gov.hmcts.reform.idam.api.${specification.packageName}.model")
+        importMappings.set(specification.importMappings ?: [:])
+        schemaMappings.set(specification.importMappings ?: [:])
+        typeMappings.set([URI: 'String'])
+        configOptions.set(commonGeneratorOptions + [useTags: (specification.packageName == 'external').toString()])
+        generateAliasAsModel.set(true)
+        cleanupOutput.set(true)
+        globalProperties.set([
+            apis      : '',
+            models    : '',
+            apiTests  : 'false',
+            modelTests: 'false',
+            apiDocs   : 'false',
+            modelDocs : 'false'
+        ])
+    }
+}
+
+tasks.register('generateApi') {
+    group = 'openapi tools'
+    description = 'Generates all Java API contracts and models from the Swagger specifications.'
+    dependsOn generationTasks
+}
+
+compileJava.dependsOn tasks.named('generateApi')
+sourcesJar.dependsOn tasks.named('generateApi')
+
 dependencies {
-    // These APIs are referenced by the generated public contracts and models.
-    api 'org.springframework:spring-web:7.0.9'
-    api 'org.springframework:spring-context:7.0.9'
-    api 'com.fasterxml.jackson.core:jackson-databind:2.22.0'
-    api 'io.swagger:swagger-annotations:1.6.16'
-    api 'jakarta.servlet:jakarta.servlet-api:6.1.0'
-    api 'jakarta.validation:jakarta.validation-api:3.1.1'
-    api 'org.slf4j:slf4j-api:2.0.18'
+    // idam-api supplies these contract APIs and owns their runtime versions.
+    compileOnly 'org.springframework:spring-web:7.0.9'
+    compileOnly 'com.fasterxml.jackson.core:jackson-annotations:2.22'
+    compileOnly 'jakarta.validation:jakarta.validation-api:3.1.1'
 
     // @Generated is source metadata and is not needed by consumers at runtime.
     compileOnly 'jakarta.annotation:jakarta.annotation-api:3.0.0'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter:6.0.3'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.0.3'
+    testImplementation 'org.springframework:spring-web:7.0.9'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.22.3'
+    testImplementation 'jakarta.validation:jakarta.validation-api:3.1.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.1.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.1.3'
 }
 
 test {
@@ -79,15 +198,7 @@ tasks.register('verifyPublishedDependencies') {
         def pom = layout.buildDirectory.file('publications/main/pom-default.xml').get().asFile.text
         def dependencyPattern = ~/(?s)<dependency>\s*<groupId>([^<]+)<\/groupId>\s*<artifactId>([^<]+)<\/artifactId>.*?<\/dependency>/
         def actual = (pom =~ dependencyPattern).collect { match -> "${match[1]}:${match[2]}" } as Set
-        def expected = [
-            'org.springframework:spring-web',
-            'org.springframework:spring-context',
-            'com.fasterxml.jackson.core:jackson-databind',
-            'io.swagger:swagger-annotations',
-            'jakarta.servlet:jakarta.servlet-api',
-            'jakarta.validation:jakarta.validation-api',
-            'org.slf4j:slf4j-api'
-        ] as Set
+        def expected = [] as Set
 
         if (actual != expected) {
             throw new GradleException("Published dependencies differ from the allowlist. Expected ${expected}, found ${actual}")

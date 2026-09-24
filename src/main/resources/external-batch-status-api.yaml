@@ -19,6 +19,8 @@ paths:
       tags:
         - Batch Status
       operationId: getBatches
+      produces:
+        - application/json
       description: Fetch all batches with some optional filters
       parameters:
         - in: header
@@ -71,6 +73,8 @@ paths:
       tags:
         - Batch Status
       operationId: batchStatus
+      produces:
+        - application/json
       description: Get the latest state of an accepted batch request.
       parameters:
         - in: header
@@ -101,6 +105,8 @@ paths:
       tags:
         - Batch Status
       operationId: runBatch
+      produces:
+        - application/json
       description: Executes the target batch job.
       parameters:
         - in: header

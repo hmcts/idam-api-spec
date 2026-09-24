@@ -48,10 +48,29 @@ The generated JAR is written to `build/libs/` and contains the Java API
 contracts, models, and YAML specifications. The YAML files are placed at the
 root of its classpath.
 
-> [!NOTE]
-> The current Gradle `check` task checks the Java project but does not run a
-> dedicated Swagger schema validator. Review specification changes in a Swagger
-> 2.0-compatible editor or validator as well as running the build.
+## Code generation
+
+Java contracts and models are generated from all nine Swagger specifications
+with OpenAPI Generator during compilation. Generated sources are written below
+`build/generated/openapi/`; they are build output and must not be edited or
+committed.
+
+Three small map models remain in `src/main/java` as compatibility types. They
+preserve the public `HashMap` classes exposed by earlier releases while the API
+interfaces and other models are generated.
+
+Deliberate generator mappings and template overrides are documented in the
+[OpenAPI Generator compatibility notes](src/main/openapi-templates/README.md).
+
+Generate the sources without running the rest of the build with:
+
+```bash
+./gradlew generateApi
+```
+
+`./gradlew check` regenerates the sources, validates that the specifications can
+be processed, compiles the generated Java, runs the tests, and checks the
+published dependency allowlist.
 
 ## Using the artifact
 
@@ -75,8 +94,7 @@ tags or the artifact feed for available release versions.
 2. Keep the document compatible with Swagger 2.0 (`swagger: '2.0'`).
 3. Update the specification's `info.version` when the API contract version
    changes.
-4. Validate the YAML and API schema with a Swagger 2.0-compatible validator.
-5. Run `./gradlew check` before opening a pull request.
+4. Run `./gradlew check` before opening a pull request.
 
 Changes to an API contract can affect generated clients and consuming services.
 Clearly describe breaking changes, additions, and deprecations in the pull
@@ -86,16 +104,18 @@ See the [contribution guidelines](.github/CONTRIBUTING.md) for the full process.
 
 ## Publishing
 
-Pull requests and pushes to `master` run `./gradlew check` in GitHub Actions.
-Pushing a tag also triggers publication to Azure Artifacts using:
+Pull requests and pushes to `master` run `./gradlew clean build` in GitHub
+Actions. To publish a release, create and push a tag in `X.Y.Z` format, for
+example `5.0.0`. The publishing workflow validates the tag and runs the complete
+build before publishing to Azure Artifacts using:
 
 ```bash
 ./gradlew publish
 ```
 
-Publishing requires `AZURE_DEVOPS_ARTIFACT_USERNAME`,
-`AZURE_DEVOPS_ARTIFACT_TOKEN`, and `RELEASE_VERSION`. Tagged GitHub Actions runs
-set `RELEASE_VERSION` to the tag name.
+Publishing requires `AZURE_DEVOPS_ARTIFACT_USERNAME` and
+`AZURE_DEVOPS_ARTIFACT_TOKEN`. The workflow sets `RELEASE_VERSION` to the tag
+name. If the build or tests fail, the publishing step is not run.
 
 ## Licence
 
