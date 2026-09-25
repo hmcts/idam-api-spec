@@ -20,6 +20,8 @@ paths:
       tags:
         - Policy
       operationId: evaluate
+      produces:
+        - application/json
       description: Evaluate policies
       parameters:
         - in: body
@@ -42,6 +44,8 @@ paths:
     get:
       summary: Get all policies
       operationId: getAll
+      produces:
+        - application/json
       description: Get all policies
       tags:
         - Policy
@@ -65,6 +69,8 @@ paths:
     post:
       summary: Create Policy with Client-Assigned ID
       operationId: post
+      produces:
+        - application/json
       description: Create or update policy
       tags:
         - Policy
@@ -114,6 +120,8 @@ paths:
     put:
       summary: Create Policy with Client-Assigned ID
       operationId: put
+      produces:
+        - application/json
       description: Create or update policy
       tags:
         - Policy
@@ -167,6 +175,8 @@ paths:
     get:
       summary: Get policy
       operationId: get
+      produces:
+        - application/json
       description: Retrieve policy
       tags:
         - Policy
@@ -197,6 +207,8 @@ paths:
     delete:
       summary: Delete
       operationId: delete
+      produces:
+        - application/json
       description: Delete policy
       tags:
         - Policy
@@ -230,19 +242,19 @@ definitions:
   ActionMap:
     title: Action values
     description: 'Set of string action names, each set to a boolean indicating whether the action is allowed. Chosen from the available actions provided by the associated Managing Resource Types resource type'
-    type: string
+    type: object
     additionalProperties:
       type: object
   ConditionMap:
     title: Condition
     description: 'Specifies environment conditions, where conditions can be combined by using the built-in types "AND", "OR", and "NOT", and where condition implementations are pluggable'
-    type: string
+    type: object
     additionalProperties:
       type: object
   SubjectMap:
     title: Subject
     description: 'Specifies the subject conditions to which the policy applies, where subjects can be combined by using the built-in types "AND", "OR", and "NOT", and where subject implementations are pluggable'
-    type: string
+    type: object
     additionalProperties:
       type: object
   GetAllPoliciesResponse:
@@ -317,7 +329,7 @@ definitions:
               title: Creation Date
               description: 'An integer containing the creation date and time, in number of seconds'
   GetPolicyResponse:
-    title: Policy Resource Schema
+    title: Get Policy Response
     description: Json schema for the policy resource
     type: object
     properties:
@@ -376,7 +388,7 @@ definitions:
         title: Creation Date
         description: 'An integer containing the creation date and time, in number of seconds'
   DeletePolicyResponse:
-    title: Policy Resource Schema
+    title: Delete Policy Response
     description: Json schema for the policy resource
     type: object
     properties:
@@ -495,7 +507,7 @@ definitions:
           title: Advices
           description: 'A map of advice names to their values, if any advice is returned according to applicable policies'
   PostPolicyRequest:
-    title: Policy Resource Schema
+    title: Post Policy Request
     description: Json schema for the policy resource
     type: object
     properties:
@@ -554,7 +566,7 @@ definitions:
         title: Creation Date
         description: 'An integer containing the creation date and time, in number of seconds'
   PostPolicyResponse:
-    title: Policy Resource Schema
+    title: Post Policy Response
     description: Json schema for the policy resource
     type: object
     properties:
@@ -613,7 +625,7 @@ definitions:
         title: Creation Date
         description: 'An integer containing the creation date and time, in number of seconds'
   PutPolicyRequest:
-    title: Policy Resource Schema
+    title: Put Policy Request
     description: Json schema for the policy resource
     type: object
     properties:
@@ -672,7 +684,7 @@ definitions:
         title: Creation Date
         description: 'An integer containing the creation date and time, in number of seconds'
   PutPolicyResponse:
-    title: Policy Resource Schema
+    title: Put Policy Response
     description: Json schema for the policy resource
     type: object
     properties:

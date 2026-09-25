@@ -1,0 +1,1 @@
+{{^isHeaderParam}}{{#required}}@NotNull {{/required}}{{/isHeaderParam}}{{^useOptional}}{{>beanValidationCore}}{{/useOptional}}{{#useOptional}}{{#required}}{{>beanValidationCore}}{{/required}}{{/useOptional}}

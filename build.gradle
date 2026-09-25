@@ -1,156 +1,209 @@
-import io.swagger.codegen.DefaultGenerator
-import io.swagger.codegen.config.CodegenConfigurator
-
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'io.swagger:swagger-codegen:2.4.2'
-    }
-}
-
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven-publish'
+    id 'org.openapi.generator' version '7.25.0'
 }
-
-version = '4.1.0'
 
 group = 'com.github.hmcts'
+version = providers.environmentVariable('RELEASE_VERSION').orElse('5.0.0-SNAPSHOT').get()
+description = 'Swagger specifications and generated Java contracts for the HMCTS IdAM APIs'
 
-description = """idam-api-spec"""
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+}
 
-sourceCompatibility = 17
-targetCompatibility = 17
-
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+    options.release = 21
+}
+
+tasks.withType(AbstractArchiveTask).configureEach {
+    preserveFileTimestamps = false
+    reproducibleFileOrder = true
 }
 
 repositories {
     mavenCentral()
-    maven { url = 'https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1' }
-    jcenter()
 }
 
-//configurations {
-//    generatedCompile
-//    compile.extendsFrom generatedCompile
-//}
+def commonGeneratorOptions = [
+    interfaceOnly                     : 'true',
+    useSpringBoot4                    : 'true',
+    useJackson3                       : 'false',
+    useSpringBuiltInValidation        : 'true',
+    annotationLibrary                 : 'none',
+    documentationProvider             : 'none',
+    skipDefaultInterface              : 'true',
+    sortParamsByRequiredFlag          : 'false',
+    openApiNullable                   : 'false',
+    hideGenerationTimestamp           : 'true',
+    generateJsonIncludeAnnotations    : 'false',
+    generateJsonSetterNullsAnnotations: 'false',
+    generateModelDocumentation        : 'false',
+    containerDefaultToNull              : 'true',
+    defaultToEmptyContainer             : 'array',
+    generatedConstructorWithRequiredArgs: 'false',
+    booleanGetterPrefix                 : 'is',
+    dateLibrary                         : 'java8'
+]
+
+def apiSpecifications = [
+    [name: 'OpenIdConnect', file: 'openid-connect.yaml', packageName: 'external'],
+    [name: 'Shared', file: 'shared.yaml', packageName: 'shared'],
+    [
+        name          : 'InternalAdmin',
+        file          : 'internal-admin-api.yaml',
+        packageName   : 'internal',
+        importMappings: [
+            User               : 'uk.gov.hmcts.reform.idam.api.shared.model.User',
+            ErrorMap           : 'uk.gov.hmcts.reform.idam.api.shared.model.ErrorMap',
+            ArrayOfRoles       : 'uk.gov.hmcts.reform.idam.api.shared.model.ArrayOfRoles',
+            Role               : 'uk.gov.hmcts.reform.idam.api.shared.model.Role',
+            ArrayOfStrings     : 'uk.gov.hmcts.reform.idam.api.shared.model.ArrayOfStrings',
+            RoleDetail         : 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDetail',
+            UpdateRole         : 'uk.gov.hmcts.reform.idam.api.shared.model.UpdateRole',
+            PatchRequest       : 'uk.gov.hmcts.reform.idam.api.shared.model.PatchRequest',
+            PatchOperation     : 'uk.gov.hmcts.reform.idam.api.shared.model.PatchOperation',
+            RegisterRequest    : 'uk.gov.hmcts.reform.idam.api.shared.model.RegisterRequest',
+            SelfRegisterRequest: 'uk.gov.hmcts.reform.idam.api.shared.model.SelfRegisterRequest'
+        ]
+    ],
+    [
+        name          : 'ExternalUserManagement',
+        file          : 'external-user-mgmt-api.yaml',
+        packageName   : 'external',
+        importMappings: [
+            RoleDefinition: 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDefinition',
+            User          : 'uk.gov.hmcts.reform.idam.api.shared.model.User',
+            ErrorMap      : 'uk.gov.hmcts.reform.idam.api.shared.model.ErrorMap'
+        ]
+    ],
+    [
+        name          : 'ExternalSso',
+        file          : 'external-sso-api.yaml',
+        packageName   : 'external',
+        importMappings: [User: 'uk.gov.hmcts.reform.idam.api.shared.model.User']
+    ],
+    [
+        name          : 'ExternalDynamicRoleAssignment',
+        file          : 'external-dynamic-role-assign-api.yaml',
+        packageName   : 'external',
+        importMappings: [RoleDefinition: 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDefinition']
+    ],
+    [
+        name          : 'ExternalPolicies',
+        file          : 'external-policies-api.yaml',
+        packageName   : 'external',
+        importMappings: [
+            ActionMap   : 'uk.gov.hmcts.reform.idam.api.external.model.ActionMap',
+            ConditionMap: 'uk.gov.hmcts.reform.idam.api.external.model.ConditionMap',
+            SubjectMap  : 'uk.gov.hmcts.reform.idam.api.external.model.SubjectMap'
+        ]
+    ],
+    [name: 'ExternalBulkRequest', file: 'external-bulk-request-api.yaml', packageName: 'external'],
+    [name: 'ExternalBatchStatus', file: 'external-batch-status-api.yaml', packageName: 'external']
+]
+
+def generationTasks = apiSpecifications.collect { specification ->
+    def outputDirectory = layout.buildDirectory.dir("generated/openapi/${specification.name}")
+
+    sourceSets.main.java.srcDir(outputDirectory.map { it.dir('src/main/java') })
+
+    tasks.register(
+        "generate${specification.name}Api",
+        org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+    ) {
+        generatorName.set('spring')
+        inputSpec.set(layout.projectDirectory.file("src/main/resources/${specification.file}").asFile.absolutePath)
+        outputDir.set(outputDirectory)
+        templateDir.set(layout.projectDirectory.dir('src/main/openapi-templates').asFile.absolutePath)
+        apiPackage.set("uk.gov.hmcts.reform.idam.api.${specification.packageName}")
+        modelPackage.set("uk.gov.hmcts.reform.idam.api.${specification.packageName}.model")
+        importMappings.set(specification.importMappings ?: [:])
+        schemaMappings.set(specification.importMappings ?: [:])
+        typeMappings.set([URI: 'String'])
+        configOptions.set(commonGeneratorOptions + [useTags: (specification.packageName == 'external').toString()])
+        generateAliasAsModel.set(true)
+        cleanupOutput.set(true)
+        globalProperties.set([
+            apis      : '',
+            models    : '',
+            apiTests  : 'false',
+            modelTests: 'false',
+            apiDocs   : 'false',
+            modelDocs : 'false'
+        ])
+    }
+}
+
+tasks.register('generateApi') {
+    group = 'openapi tools'
+    description = 'Generates all Java API contracts and models from the Swagger specifications.'
+    dependsOn generationTasks
+}
+
+compileJava.dependsOn tasks.named('generateApi')
+sourcesJar.dependsOn tasks.named('generateApi')
 
 dependencies {
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '3.1.1'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-tomcat', version: '3.1.1'
-    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '3.1.1'
-    implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
-    implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
-    implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.13.2'
-//    generatedCompile group: 'jakarta.validation', name: 'validation-api', version: '2.0.1.Final'
+    // idam-api supplies these contract APIs and owns their runtime versions.
+    compileOnly 'org.springframework:spring-web:7.0.9'
+    compileOnly 'com.fasterxml.jackson.core:jackson-annotations:2.22'
+    compileOnly 'jakarta.validation:jakarta.validation-api:3.1.1'
+
+    // @Generated is source metadata and is not needed by consumers at runtime.
+    compileOnly 'jakarta.annotation:jakarta.annotation-api:3.0.0'
+
+    testImplementation 'org.springframework:spring-web:7.0.9'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.22.3'
+    testImplementation 'jakarta.validation:jakarta.validation-api:3.1.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.1.3'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.1.3'
 }
-//
-//project.ext {
-//    swaggerTargetFolder = 'src/generated/java'
-//}
-//
-//def generateCodeFromSwagger(swaggerSourceFile, packageName, importMappings) {
-//    def config = new CodegenConfigurator()
-//    config.setInputSpec("file:///$projectDir/$swaggerSourceFile")
-//    config.setOutputDir("$buildDir")
-//    config.setLang('spring')
-//    config.setAdditionalProperties([
-//            'generateApis'                 : 'false',
-//            'interfaceOnly'                : 'true',
-//            'apiPackage'                   : 'uk.gov.hmcts.reform.idam.api.' + packageName,
-//            'modelPackage'                 : 'uk.gov.hmcts.reform.idam.api.' + packageName +'.model',
-//            'sourceFolder'                 : project.swaggerTargetFolder,
-//            'dateLibrary'                  : 'java8',
-//            'useTags'                      : (packageName == 'external' ? 'true' : 'false'),
-//            'generateModelDocumentation'   : 'false'
-//    ])
-//    if (importMappings != null) {
-//        ((LinkedHashMap<String, String>) importMappings).each { k, v -> config.addImportMapping(k, v) }
-//    }
-//    new DefaultGenerator().opts(config.toClientOptInput()).generate()
-//}
-//
-//task generateApi {
-//    outputs.dir("$buildDir")
-//    doLast{
-//        generateCodeFromSwagger('src/main/resources/openid-connect.yaml', 'external', null)
-//
-//        generateCodeFromSwagger('src/main/resources/shared.yaml', 'shared', null)
-//
-//        generateCodeFromSwagger('src/main/resources/internal-admin-api.yaml', 'internal', [
-//                'User': 'uk.gov.hmcts.reform.idam.api.shared.model.User',
-//                'ErrorMap' : 'uk.gov.hmcts.reform.idam.api.shared.model.ErrorMap',
-//                'ArrayOfRoles' : 'uk.gov.hmcts.reform.idam.api.shared.model.ArrayOfRoles',
-//                'Role' : 'uk.gov.hmcts.reform.idam.api.shared.model.Role',
-//                'ArrayOfStrings' : 'uk.gov.hmcts.reform.idam.api.shared.model.ArrayOfStrings',
-//                'RoleDetail' : 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDetail',
-//                'UpdateRole' : 'uk.gov.hmcts.reform.idam.api.shared.model.UpdateRole',
-//                'PatchRequest' : 'uk.gov.hmcts.reform.idam.api.shared.model.PatchRequest',
-//                'PatchOperation' : 'uk.gov.hmcts.reform.idam.api.shared.model.PatchOperation',
-//                'RegisterRequest' : 'uk.gov.hmcts.reform.idam.api.shared.model.RegisterRequest',
-//                'SelfRegisterRequest' : 'uk.gov.hmcts.reform.idam.api.shared.model.SelfRegisterRequest'
-//        ])
-//
-//        generateCodeFromSwagger('src/main/resources/external-user-mgmt-api.yaml', 'external', [
-//                'RoleDefinition': 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDefinition',
-//                'User': 'uk.gov.hmcts.reform.idam.api.shared.model.User',
-//                'ErrorMap' : 'uk.gov.hmcts.reform.idam.api.shared.model.ErrorMap'
-//        ])
-//
-//        generateCodeFromSwagger('src/main/resources/external-sso-api.yaml', 'external', [
-//            'User': 'uk.gov.hmcts.reform.idam.api.shared.model.User'
-//        ])
-//
-//        generateCodeFromSwagger('src/main/resources/external-dynamic-role-assign-api.yaml', 'external', [
-//                'RoleDefinition': 'uk.gov.hmcts.reform.idam.api.shared.model.RoleDefinition'
-//        ])
-//
-//        generateCodeFromSwagger('src/main/resources/external-policies-api.yaml', 'external', null)
-//
-//        generateCodeFromSwagger('src/main/resources/external-bulk-request-api.yaml', 'external', null)
-//
-//        generateCodeFromSwagger('src/main/resources/external-batch-status-api.yaml', 'external', null)
-//
-//    }
-//}
-//
-//sourceSets {
-//    generated {
-//        java {
-//            srcDirs "$buildDir/$swaggerTargetFolder"
-//        }
-//    }
-//}
-//
-//jar {
-//    from sourceSets.generated.output
-//}
-//
-//compileGeneratedJava.dependsOn generateApi
-//classes.dependsOn generatedClasses
-//compileJava.dependsOn compileGeneratedJava
+
+test {
+    useJUnitPlatform()
+}
 
 publishing {
     publications {
-        Main(MavenPublication) {
+        main(MavenPublication) {
             from components.java
-            groupId project.group
-            artifactId rootProject.name
-            version project.version
+            groupId = project.group
+            artifactId = rootProject.name
+            version = project.version
         }
     }
     repositories {
         maven {
-            name = "AzureArtifacts"
-            url = uri("https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1")
+            name = 'AzureArtifacts'
+            url = uri('https://pkgs.dev.azure.com/hmcts/Artifacts/_packaging/hmcts-lib/maven/v1')
             credentials {
-                username = System.getenv("AZURE_DEVOPS_ARTIFACT_USERNAME")
-                password = System.getenv("AZURE_DEVOPS_ARTIFACT_TOKEN")
+                username = System.getenv('AZURE_DEVOPS_ARTIFACT_USERNAME')
+                password = System.getenv('AZURE_DEVOPS_ARTIFACT_TOKEN')
             }
         }
     }
 }
+
+tasks.register('verifyPublishedDependencies') {
+    group = 'verification'
+    description = 'Checks that the published POM exposes only the intended dependencies.'
+    dependsOn tasks.named('generatePomFileForMainPublication')
+
+    doLast {
+        def pom = layout.buildDirectory.file('publications/main/pom-default.xml').get().asFile.text
+        def dependencyPattern = ~/(?s)<dependency>\s*<groupId>([^<]+)<\/groupId>\s*<artifactId>([^<]+)<\/artifactId>.*?<\/dependency>/
+        def actual = (pom =~ dependencyPattern).collect { match -> "${match[1]}:${match[2]}" } as Set
+        def expected = [] as Set
+
+        if (actual != expected) {
+            throw new GradleException("Published dependencies differ from the allowlist. Expected ${expected}, found ${actual}")
+        }
+    }
+}
+
+check.dependsOn tasks.named('verifyPublishedDependencies')

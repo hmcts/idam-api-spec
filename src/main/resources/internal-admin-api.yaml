@@ -8,6 +8,8 @@ paths:
   /pin:
     post:
       operationId: "createPin"
+      produces:
+        - application/json
       description: "Generates a new PIN to be used in 'PIN in the Post' journeys."
       parameters:
         - in: body
@@ -35,18 +37,18 @@ paths:
           name: pin
           required: true
           type: string
-        - in: formData
+        - in: query
           name: redirect_uri
           description: "URI to redirect the user to after login. This should be one of the URIs
           registered with the OAuth2 client linked to the service initiating the login."
           required: true
           type: string
-        - in: formData
+        - in: query
           name: client_id
           description: OAuth2 client id of the service initiating the login.
           required: true
           type: string
-        - in: formData
+        - in: query
           name: state
           description: Optional state to be sent back to the initiating service after successful login.
           required: false
@@ -108,13 +110,13 @@ paths:
           type: string
           description: "Client credentials passed using Basic authentication scheme, e.g. Basic xxx"
         - in: path
-          name: accessToken
+          name: access_token
           description: The access token associated to the session
           required: true
           type: string
       responses:
         204:
-          desciption: "Success"
+          description: "Success"
         400:
           description: "Bad request. This normally means that either client_id, or client_secret is missing."
         403:
@@ -397,7 +399,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: body
           name: request
           required: true
@@ -409,6 +411,8 @@ paths:
 
     get:
       operationId: getUserByEmail
+      produces:
+        - application/json
       description: "Search user by email address."
       parameters:
         - in: header
@@ -416,7 +420,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: query
           name: email
           type: string
@@ -472,6 +476,8 @@ paths:
   /validate:
     post:
       operationId: "validateActivationToken"
+      produces:
+        - application/json
       description: "Validate an activation token. The token is generated when the user is initially
         registered and is sent over email."
       parameters:
@@ -492,6 +498,8 @@ paths:
   /activate:
     patch:
       operationId: "activateUser"
+      produces:
+        - application/json
       description: "Activate a user that has registered recently.
       This operation can be performed on users that have received an email with an activation link.
       The token and code in the link together with a user-provided password are used to complete
@@ -512,6 +520,8 @@ paths:
   /users/{userId}:
     get:
       operationId: getUser
+      produces:
+        - application/json
       description: "Returns the user details."
       parameters:
         - in: header
@@ -519,7 +529,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: userId
           type: string
@@ -538,6 +548,8 @@ paths:
             $ref: '#/definitions/ErrorMap'
     patch:
       operationId: updateUser
+      produces:
+        - application/json
       description: "Update user details"
       parameters:
         - in: header
@@ -545,7 +557,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: userId
           type: string
@@ -565,6 +577,8 @@ paths:
           description: "The user  does not exist"
     delete:
       operationId: deleteUser
+      produces:
+        - application/json
       description: "Deletes the user."
       parameters:
         - in: header
@@ -572,7 +586,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: userId
           type: string
@@ -591,6 +605,8 @@ paths:
   /users/{userId}/roles/{roleId}:
     patch:
       operationId: grantRole
+      produces:
+        - application/json
       description: "Grants a role to a user"
       parameters:
         - in: header
@@ -598,7 +614,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: userId
           type: string
@@ -620,6 +636,8 @@ paths:
           description: "The user or the role does not exist"
     delete:
       operationId: denyRole
+      produces:
+        - application/json
       description: "Removes a role from a user"
       parameters:
         - in: header
@@ -627,7 +645,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: userId
           type: string
@@ -651,14 +669,14 @@ paths:
       operationId: userStatus
       description: "Sets the status of a user"
       produces:
-        application/json
+        - application/json
       parameters:
         - in: header
           name: Authorization
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: userId
           type: string
@@ -681,6 +699,8 @@ paths:
   /roles:
     post:
       operationId: createRole
+      produces:
+        - application/json
       description: "Creates a new role in the system"
       parameters:
         - in: header
@@ -688,7 +708,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: body
           name: request
           required: true
@@ -705,6 +725,8 @@ paths:
           description: "That role already exists. Use PUT to update"
     get:
       operationId: "getAllRoles"
+      produces:
+        - application/json
       description: "Returns an array of all roles"
       security:
       parameters:
@@ -713,7 +735,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: query
           name: filterType
           description: "Filters the roles on a given filter type (e.g filterType=service)"
@@ -734,6 +756,8 @@ paths:
   /roles/{roleId}:
     put:
       operationId: "updateRole"
+      produces:
+        - application/json
       description: "Updates a specified role in the system"
       parameters:
         - in: header
@@ -741,7 +765,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: roleId
           type: string
@@ -764,6 +788,8 @@ paths:
           description: "The role was not found"
     get:
       operationId: "getRole"
+      produces:
+        - application/json
       description: "Gets the specified role from the system."
       parameters:
         - in: header
@@ -771,7 +797,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: roleId
           type: string
@@ -788,6 +814,8 @@ paths:
   /roles/{roleId}/assignableRoles:
     put:
       operationId: "updateAssignableRoles"
+      produces:
+        - application/json
       description: "Updates the array of assignable roles that the specified role can assign to other users."
       parameters:
         - in: header
@@ -795,7 +823,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: roleId
           type: string
@@ -818,6 +846,8 @@ paths:
           description: "The role was not found"
     get:
       operationId: "getAssignableRoles"
+      produces:
+        - application/json
       description: "Gets an array of roles that this role is allowed to assign to other users."
       parameters:
         - in: header
@@ -825,7 +855,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: roleId
           type: string
@@ -835,13 +865,17 @@ paths:
         200:
           description: "Array of the roles that this role is allowed to assign"
           schema:
-            $ref: '#/definitions/ArrayOfStrings'
+            type: array
+            items:
+              type: string
         404:
           description: "The role was not found"
 
   /roles/name/{name}:
     get:
       operationId: "getRoleByName"
+      produces:
+        - application/json
       description: "Gets the specified role from the system."
       parameters:
         - in: header
@@ -849,7 +883,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: name
           type: string
@@ -866,6 +900,8 @@ paths:
   /services:
     post:
       operationId: createService
+      produces:
+        - application/json
       description: Creates/Registers a new service
       parameters:
         - in: header
@@ -873,7 +909,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: body
           name: request
           required: true
@@ -890,13 +926,15 @@ paths:
           description: 'Service already exists. Use PUT to update'
     get:
       operationId: getServices
+      produces:
+        - application/json
       description: "Returns an array of all the services"
       parameters:
         - in: header
           name: Authorization
           type: string
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: query
           name: clientId
           type: string
@@ -911,6 +949,8 @@ paths:
   /services/{serviceId}:
     put:
       operationId: "updateService"
+      produces:
+        - application/json
       description: Updates a specified service in the system
       parameters:
         - in: header
@@ -918,7 +958,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: serviceId
           type: string
@@ -938,6 +978,8 @@ paths:
           description: The service was not found
     get:
       operationId: "getService"
+      produces:
+        - application/json
       description: Gets the specified service from the system
       parameters:
         - in: header
@@ -945,7 +987,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: serviceId
           type: string
@@ -962,6 +1004,8 @@ paths:
   /services/{serviceId}/roles:
     get:
       operationId: getRolesForService
+      produces:
+        - application/json
       description: Gets all the roles assigned to a given service
       parameters:
         - in: header
@@ -969,7 +1013,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: serviceId
           type: string
@@ -979,12 +1023,16 @@ paths:
         200:
           description: An array of roles associated with this
           schema:
-            $ref: '#/definitions/ArrayOfStrings'
+            type: array
+            items:
+              type: string
         404:
           description: The service was not found
 
     put:
       operationId: putRolesForService
+      produces:
+        - application/json
       description: Modifies the roles for a given service
       parameters:
         - in: header
@@ -992,7 +1040,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: serviceId
           type: string
@@ -1015,6 +1063,8 @@ paths:
   /agents/{clientId}:
     get:
       operationId: getOAuth2Agent
+      produces:
+        - application/json
       description: Gets an OAuth2 Agent by clientId
       parameters:
         - in: header
@@ -1022,7 +1072,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: clientId
           type: string
@@ -1048,7 +1098,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: body
           name: request
           required: true
@@ -1070,7 +1120,7 @@ paths:
           type: string
           required: true
           description: The Base64-encoded authorization token
-          example: AdminApiAuthToken [api-auth-token]
+          x-example: AdminApiAuthToken [api-auth-token]
         - in: path
           name: userId
           type: string
@@ -1111,9 +1161,11 @@ paths:
           schema:
             $ref: '#/definitions/JsonWebKeySet'
 
-  /testing-support/accounts/{accountId:.+}:
+  /testing-support/accounts/{accountId}:
     get:
       operationId: "getAccount"
+      produces:
+        - application/json
       description: "Fetch a test account via ID"
       parameters:
         - in: path
@@ -1132,6 +1184,8 @@ paths:
   /testing-support/accounts:
     post:
       operationId: "createTestAccount"
+      produces:
+        - application/json
       description: "Create a test account"
       parameters:
         - in: body
@@ -1150,6 +1204,8 @@ paths:
   /testing-support/pact-state-change:
     post:
       operationId: "pactStateChange"
+      produces:
+        - application/json
       description: "Handles the requested state changes for pact testing"
       parameters:
       - name: pactState
@@ -1169,6 +1225,8 @@ paths:
   /testing-support/test-data:
     delete:
       operationId: "deleteAllTestData"
+      produces:
+        - application/json
       description: "Delete all test data"
       parameters:
         - in: query
@@ -1208,7 +1266,7 @@ paths:
           schema:
             $ref: '#/definitions/DeletedData'
 
-  /testing-support/accounts/{username:.+}:
+  /testing-support/accounts/{username}:
     delete:
       operationId: "deleteTestAccount"
       description: "Delete an account"
@@ -1223,9 +1281,11 @@ paths:
         404:
           description: "User does not exist"
 
-  /testing-support/accounts/pin/{userId:.+}:
+  /testing-support/accounts/pin/{userId}:
     get:
       operationId: "getPinByUserId"
+      produces:
+        - text/plain
       description: "Gets the pin by userId"
       parameters:
         - in: path
@@ -1241,7 +1301,7 @@ paths:
         404:
           description: "User Not Found or Not a PIN User"
 
-  /testing-support/services/{service:.+}:
+  /testing-support/services/{service}:
     delete:
       operationId: "deleteTestService"
       description: "Delete a service and his roles"
@@ -1274,7 +1334,7 @@ paths:
         404:
           description: "Could not find the service"
 
-  /testing-support/roles/{role:.+}:
+  /testing-support/roles/{role}:
     delete:
       operationId: "deleteTestRole"
       description: "Delete a role"
@@ -1297,17 +1357,11 @@ paths:
         200:
           description: "Job started"
 
-  /testing-support/cache/refresh:
-    post:
-      operationId: "cacheRefresh"
-      description: "Refresh the cache"
-      response:
-        200:
-          description: "Job started"
-
   /testing-support/mock/refdata/external/v1/organisations/mfa:
     get:
       operationId: "getOrganisationMFA"
+      produces:
+        - application/json
       description: "Gets the organisation mfa by userId"
       parameters:
         - in: query
@@ -1915,4 +1969,3 @@ definitions:
       mfa:
         type: string
         description: Organisation MFA type
-        
